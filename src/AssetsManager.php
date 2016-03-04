@@ -248,7 +248,7 @@ class AssetsManager
         $destDir  = dirname($destFile);
 
         if (!is_dir($destDir)) {
-            mkdir($destDir);
+            mkdir($destDir, 0777, true);
         }
 
         file_put_contents($destFile, $contents);
