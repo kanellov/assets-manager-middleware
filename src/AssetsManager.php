@@ -202,7 +202,9 @@ class AssetsManager
      */
     private function detectMimeType($file)
     {
-        $extension = strtolower(array_pop(explode('.', $file)));
+        $fileParts = explode('.', $file);
+        $extension = array_pop($fileParts);
+        $extension = strtolower($extension);
 
         if (array_key_exists($extension, $this->mimeTypes)) {
             return $this->mimeTypes[$extension];

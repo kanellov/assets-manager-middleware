@@ -45,6 +45,7 @@ class AssetsManagerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/javascript', $response->getHeaderLine('Content-Type'));
         $body = $response->getBody();
         $body->rewind();
-        $this->assertEquals(file_get_contents(__DIR__ . '/assets/test.js'), $body->getContents());
+        $expected = file_get_contents(__DIR__ . '/assets/test.js');
+        $this->assertEquals($expected, $body->getContents());
     }
 }
