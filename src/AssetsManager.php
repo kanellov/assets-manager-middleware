@@ -151,12 +151,13 @@ class AssetsManager
     public function __invoke(
         ServerRequestInterface $req,
         ResponseInterface $res,
-        callable $next
+        callable $next = null
     ) {
-        $file = $this->findFileFromRequest($req);
+        $uriPath = $req->getUri()->getPath();
+        $file    = $this->findFile($uriPath);
         if ($file) {
             $contents = file_get_contents($file);
-            $this->writeToWebDir($file, $contents);
+            $this->writeToWebDir($uriPath, $contents);
 
             try {
                 $res->getBody()->rewind();
@@ -169,23 +170,27 @@ class AssetsManager
             }
         }
 
-        return $next($req, $res);
+        if (null !== $next) {
+            return $next($req, $res);
+        }
+
+        return $res;
     }
 
     /**
      * Finds the file from the request's uri path in the provided paths.
      * 
-     * @param ServerRequestInterface $req the server request
+     * @param string $uriPath the request uri path
      * @return boolean|string false if no file is found; the full file path if file is found
      */
-    private function findFileFromRequest(ServerRequestInterface $req)
+    private function findFile($uriPath)
     {
-        return array_reduce($this->paths, function ($file, $path) use ($req) {
+        return array_reduce($this->paths, function ($file, $path) use ($uriPath) {
             if (false !== $file) {
                 return $file;
             }
 
-            $file = $path . $req->getUri()->getPath();
+            $file = $path . $uriPath;
             if (is_readable($file)) {
                 return $file;
             }
@@ -224,11 +229,11 @@ class AssetsManager
     /**
      * Writes the file in the web_dir so next time web server serve it
      * 
-     * @param string $filename
+     * @param string $file
      * @param string $contents
      * @return null
      */
-    private function writeToWebDir($filename, $contents)
+    private function writeToWebDir($file, $contents)
     {
         if (!$this->webDir) {
             return;
@@ -240,11 +245,12 @@ class AssetsManager
             return;
         }
 
-        $destDir = dirname($filename);
+        $destDir = dirname($this->webDir . $file);
+
         if (!is_dir($destDir)) {
             mkdir($destDir);
         }
 
-        file_put_contents($filename, $contents);
+        file_put_contents($destDir . $file, $contents);
     }
 }
