@@ -38,7 +38,6 @@ class AssetsManagerTest extends PHPUnit_Framework_TestCase
         ]);
 
         $response = $middleware($this->request('/test.js'), $this->response());
-        /* @var $response \Psr\Http\Message\ResponseInterface */
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/javascript', $response->getHeaderLine('Content-Type'));
         $body = $response->getBody();
@@ -47,21 +46,73 @@ class AssetsManagerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $body->getContents());
     }
 
-    public function testWriteToWebDir()
+    /**
+     * @dataProvider writeToWebDirDataProvider
+     */
+    public function testWriteToWebDir($asset)
     {
-        if (file_exists(__DIR__ . '/public/test.js')) {
-            unlink(__DIR__ . '/public/test.js');
+        $destDir    = __DIR__ . '/public';
+        $sourceDir  = __DIR__ . '/assets';
+        $sourceFile = $sourceDir . $asset;
+        $destFile   = $destDir . $asset;
+
+        if (file_exists($destFile)) {
+            unlink($destFile);
         }
         $middleware = new AssetsManager([
-            'paths'   => __DIR__ . '/assets',
-            'web_dir' => __DIR__ . '/public',
+            'paths'   => $sourceDir,
+            'web_dir' => $destDir,
         ]);
 
-        $middleware($this->request('/test.js'), $this->response());
-        /* @var $response \Psr\Http\Message\ResponseInterface */
-        $this->assertFileEquals(__DIR__ . '/public/test.js', __DIR__ . '/assets/test.js');
-        if (file_exists(__DIR__ . '/public/test.js')) {
-            unlink(__DIR__ . '/public/test.js');
+        $middleware($this->request($asset), $this->response());
+        $this->assertFileEquals($sourceFile, $destFile);
+        if (file_exists($destFile)) {
+            unlink($destFile);
         }
+    }
+
+    public function writeToWebDirDataProvider()
+    {
+        return [
+            ['/test.js'],
+            ['/sub/test.css'],
+        ];
+    }
+
+    public function testCustomMime()
+    {
+        $middleware = new AssetsManager([
+            'paths'      => __DIR__ . '/assets',
+            'mime_types' => [
+                'js' => 'mime/type',
+            ],
+        ]);
+        $response = $middleware($this->request('/test.js'), $this->response());
+        $this->assertEquals('mime/type', $response->getHeaderLine('Content-Type'));
+    }
+
+    public function testCallsNextIfFileNotFound()
+    {
+        $middleware = new AssetsManager([
+            'paths' => __DIR__ . '/assets',
+        ]);
+        $response = $middleware($this->request('/test.txt'), $this->response(), function ($req, $res) {
+            $res->getBody()->write('next middleware');
+
+            return $res;
+        });
+        $expected = 'next middleware';
+        $body     = $response->getBody();
+        $body->rewind();
+        $this->assertEquals($expected, $body->getContents());
+    }
+
+    public function testReturns404IfNoNextAndFileNotFound()
+    {
+        $middleware = new AssetsManager([
+            'paths' => __DIR__ . '/assets',
+        ]);
+        $response = $middleware($this->request('/test.txt'), $this->response());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 }

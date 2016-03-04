@@ -129,9 +129,8 @@ class AssetsManager
         }
 
         $this->mimeTypes = self::$defaultMimeTypes;
-        if (isset($options['mime_types'])) {
-            $mimeTypes       = is_array($options['mime_types']) ? $options['mime_types'] : [$options['mime_types']];
-            $this->mimeTypes = array_merge($this->mimeTypes, $mimeTypes);
+        if (isset($options['mime_types']) && is_array($options['mime_types'])) {
+            $this->mimeTypes = array_merge($this->mimeTypes, $options['mime_types']);
         }
     }
 
@@ -174,7 +173,7 @@ class AssetsManager
             return $next($req, $res);
         }
 
-        return $res;
+        return $res->withStatus(404, sprintf('%s not found', $uriPath));
     }
 
     /**
@@ -245,12 +244,13 @@ class AssetsManager
             return;
         }
 
-        $destDir = dirname($this->webDir . $file);
+        $destFile = $this->webDir . $file;
+        $destDir  = dirname($destFile);
 
         if (!is_dir($destDir)) {
             mkdir($destDir);
         }
 
-        file_put_contents($destDir . $file, $contents);
+        file_put_contents($destFile, $contents);
     }
 }
