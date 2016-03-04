@@ -1,0 +1,37 @@
+{
+    "name": "kanellov/assets-manager-middlware",
+    "description": "A middleware to serve assets from non public directories",
+    "type": "library",
+    "keywords": [
+        "psr7", "middleware", "assets", "library"
+    ],
+    "homepage": "https://github.com/kanellov/assets-manager-middleware",
+    "license": "GNU GPLv3",
+    "authors": [
+        {
+            "name": "Vassilis Kanellopoulos",
+            "email": "contact@kanellov.com",
+            "homepage": "http://kanellov.com"
+        }
+    ],
+    "support": {
+        "email": "contact@kanellov.com",
+        "issues": "https://github.com/kanellov/assets-manager-middleware/issues",
+        "source": "https://github.com/kanellov/assets-manager-middleware"
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "zendframework/zend-diactoros": "1.*",
+        "fabpot/php-cs-fixer": "1.*",
+        "phpunit/PHPUnit": "4.*",
+        "slim/slim": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Knlv\\Middleware\\": "src/"
+        }
+    }
+}
