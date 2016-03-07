@@ -115,4 +115,13 @@ class AssetsManagerTest extends PHPUnit_Framework_TestCase
         $response = $middleware($this->request('/test.txt'), $this->response());
         $this->assertEquals(404, $response->getStatusCode());
     }
+
+    public function testRunOnlyForFiles()
+    {
+        $middleware = new AssetsManager([
+            'paths' => __DIR__ . '/assets',
+        ]);
+        $response = $middleware($this->request('/'), $this->response());
+        $this->assertEquals(404, $response->getStatusCode());
+    }
 }

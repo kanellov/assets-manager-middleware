@@ -190,7 +190,7 @@ class AssetsManager
             }
 
             $file = $path . $uriPath;
-            if (is_readable($file)) {
+            if (is_file($file) && is_readable($file)) {
                 return $file;
             }
 
