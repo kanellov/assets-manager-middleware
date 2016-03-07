@@ -1,5 +1,5 @@
 {
-    "name": "kanellov/assets-manager-middlware",
+    "name": "kanellov/assets-manager-middleware",
     "description": "A middleware to serve assets from non public directories",
     "type": "library",
     "keywords": [
