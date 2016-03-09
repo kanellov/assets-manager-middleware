@@ -17,7 +17,7 @@ A middleware to serve assets from non public directories
 $ composer require kanellov/assets-manager-middleware
 ```
 
-## Exapmple
+## Example
 
 Using middleware with Slim Framework.
 
